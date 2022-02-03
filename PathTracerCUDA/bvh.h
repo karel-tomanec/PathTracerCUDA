@@ -160,7 +160,7 @@ __device__ bool BVHNode::Hit(const Ray& r, float tmin, float tmax, HitRecord& re
 			bool hitLeft = false;
 			bool hitRight = false;
 			if (currNode->type == 0) {
-				Sphere sLeft = hittables[currNode->left];
+				Sphere& sLeft = hittables[currNode->left];
 				HitRecord tmpRec;
 				hitLeft = sLeft.Hit(r, tmin, tmax, tmpRec);
 				if (hitLeft) {
@@ -177,7 +177,7 @@ __device__ bool BVHNode::Hit(const Ray& r, float tmin, float tmax, HitRecord& re
 					}
 				}
 				if (currNode->left != currNode->right) {
-					Sphere sRight = hittables[currNode->right];
+					Sphere& sRight = hittables[currNode->right];
 					hitRight = sRight.Hit(r, tmin, hitLeft ? rec.t : tmax, tmpRec);
 				}
 				if (hitRight) {

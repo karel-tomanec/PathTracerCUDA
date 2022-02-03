@@ -10,7 +10,7 @@ public:
     };
 
     // Get intersected point between the ray and the sphere
-    __device__ virtual bool Hit(const Ray& ray, float tmin, float tmax, HitRecord& record) const;
+    __device__ bool Hit(const Ray& ray, float tmin, float tmax, HitRecord& record) const;
 
     AABB Box() {
         return AABB(center - Vector3(radius), center + Vector3(radius));

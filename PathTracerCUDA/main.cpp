@@ -10,8 +10,8 @@
 #include "integrator.h"
 
 // Choose scene to render:
-#define SIMPLE_SCENE
-//#define COMPLEX_SCENE
+//#define SIMPLE_SCENE
+#define COMPLEX_SCENE
 
 // Choose rendering mode:
 #define INTERACTIVE
