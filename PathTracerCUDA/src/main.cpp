@@ -3,7 +3,7 @@
 #include <iostream>
 #include <chrono>
 
-#include "../Dependencies/GLFW/include/GLFW/glfw3.h"
+#include "../../Dependencies/GLFW/include/GLFW/glfw3.h"
 
 #include "utility.h"
 #include "image.h"

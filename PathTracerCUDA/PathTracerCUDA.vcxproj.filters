@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="main.cpp" />
+    <CudaCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="HeaderFiles">
@@ -9,46 +9,46 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="vector3.h">
+    <ClInclude Include="src\vector3.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="utility.h">
+    <ClInclude Include="src\utility.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="ray.h">
+    <ClInclude Include="src\ray.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="hittable.h">
+    <ClInclude Include="src\hittable.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="sphere.h">
+    <ClInclude Include="src\sphere.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
+    <ClInclude Include="src\camera.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="material.h">
+    <ClInclude Include="src\material.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="aabb.h">
+    <ClInclude Include="src\aabb.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="bvh.h">
+    <ClInclude Include="src\bvh.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="environment_map.h">
+    <ClInclude Include="src\environment_map.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="image.h">
+    <ClInclude Include="src\image.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
+    <ClInclude Include="src\stb_image.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image_write.h">
+    <ClInclude Include="src\stb_image_write.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="integrator.h">
+    <ClInclude Include="src\integrator.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
   </ItemGroup>
