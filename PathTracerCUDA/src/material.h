@@ -4,20 +4,45 @@
 #include "vector3.h"
 #include "hittable.h"
 
-// Base interface for materials
+/// <summary>
+/// Base interface for materials.
+/// </summary>
 class Material {
 public:
 
-	// BRDF.cos(theta) importance sampling for input normal, wo (outgoing direction)
+    /// <summary>
+    /// BRDF.cos(theta) importance sampling for input normal, wo (outgoing direction).
+    /// </summary>
+    /// <param name="n">Normal vector</param>
+    /// <param name="wo">Outgoing direction</param>
+    /// <param name="wi">Ingoing direction</param>
+    /// <param name="randState">cuRAND state</param>
     __device__ virtual bool SampleDirection(const Vector3& n, const Vector3& wo, Vector3& wi, curandState* randState) const = 0;
 
-	// Evaluates the probability given input normal, view (outgoing) direction and incoming light direction
+
+    /// <summary>
+    /// Evaluate the probability given input normal, view (outgoing) 
+	/// direction and incoming light direction
+    /// </summary>
+    /// <param name="n">Normal vector</param>
+    /// <param name="wo">Outgoing direction</param>
+    /// <param name="wi">Ingoing direction</param>
+    /// <returns>Sample probability</returns>
     __device__ virtual float SampleProb(const Vector3& n, const Vector3& wo, const Vector3& wi) const = 0;
 
-	// Evaluates the BRDF given normal, wo (outgoing direction) and wi (incoming direction)
+	/// <summary>
+	/// Evaluates the BRDF given normal, wo (outgoing direction) and wi (incoming direction).
+	/// </summary>
+	/// <param name="n">Normal vector</param>
+	/// <param name="wo">Outgoing direction</param>
+	/// <param name="wi">Ingoing direction</param>
+	/// <returns>BRDF</returns>
 	__device__ virtual Vector3 BRDF(const Vector3& n, const Vector3& wo, const Vector3& wi) const = 0;
 
-	// Emission of the material
+    /// <summary>
+    /// Emission of the material.
+    /// </summary>
+    /// <returns>Emitted radiance</returns>
     __device__ virtual Color3 Le() const {
         return Color3(0.0f);
     }

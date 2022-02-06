@@ -35,7 +35,10 @@ float lastY = imageHeight / 2.0f;
 
 #define CheckCudaErrors(val) CheckCUDA( (val), #val, __FILE__, __LINE__ )
 
-// Checks CUDA error
+
+/// <summary>
+/// Check CUDA error
+/// </summary>
 void CheckCUDA(cudaError_t result, char const* const func, const char* const file, int const line) {
 	if (result) {
 		std::cerr << "CUDA ERROR = " << static_cast<unsigned int>(result) << " at " <<
@@ -45,14 +48,22 @@ void CheckCUDA(cudaError_t result, char const* const func, const char* const fil
 	}
 }
 
-// Initializes single curandState
+/// <summary>
+/// Initialize single curandState
+/// </summary>
+/// <param name="rand_state">cuRAND state</param>
 __global__ void CUrandInit(curandState* rand_state) {
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
 		curand_init(1984, 0, 0, rand_state);
 	}
 }
 
-// Initializes curandState for each pixel (thread)
+/// <summary>
+/// Initialize curandState for each pixel (thread)
+/// </summary>
+/// <param name="maxX">image width</param>
+/// <param name="maxY">image hight</param>
+/// <param name="rand_state">cuRAND state</param>
 __global__ void RenderInit(int maxX, int maxY, curandState* rand_state) {
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;

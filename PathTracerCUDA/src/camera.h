@@ -3,7 +3,9 @@
 #include "vector3.h"
 #include "ray.h"
 
-// Representation of perspective camera - simulates the way human eye and cameras sees things
+/// <summary>
+/// Representation of perspective camera - simulates the way human eye and cameras sees things.
+/// </summary>
 class Camera {
 public:
     __device__ Camera(
@@ -31,19 +33,28 @@ public:
         phi = RadiansToDegrees(SphericalPhi(cameraFront) + 180);
     }
 
-
-    // Generates ray from the image coordinates
+    /// <summary>
+    /// Generates ray from the image coordinates.
+    /// </summary>
+    /// <param name="s">Horizontal image coordinate</param>
+    /// <param name="t">Vertical image coordinate</param>
+    /// <returns>Generatedd ray</returns>
     __device__ Ray GenerateRay(float s, float t) const {
         return Ray(origin, Normalize(lowerLeftCorner + s * horizontal + t * vertical - origin));
     }
 
-    // Moves origin of the camera
+    /// <summary>
+    /// Moves origin of the camera.
+    /// </summary>
+    /// <param name="v">Direction</param>
     __device__ inline void MoveOrigin(Vector3 v) {
         origin += v;
         lowerLeftCorner = origin - horizontal / 2.0f - vertical / 2.0f + cameraFront;
     }
 
-    // Updates camera vectors based on Euler angles
+    /// <summary>
+    /// Update camera vectors based on Euler angles.
+    /// </summary>
     __device__ inline void UpdateCameraVectors() {
         float costheta = cosf(DegreesToRadians(theta));
         float sintheta = sinf(DegreesToRadians(theta));
@@ -111,7 +122,6 @@ __global__ void moveCameraRight(Camera** d_camera, float cameraSpeed) {
 }
 
 // Mouse input:
-
 __global__ void mouseMovement(Camera** d_camera, float xoffset, float yoffset) {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         (*d_camera)->phi += xoffset;

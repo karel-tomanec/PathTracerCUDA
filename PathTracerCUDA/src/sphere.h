@@ -1,6 +1,9 @@
 #pragma once
 #include "hittable.h"
 
+/// <summary>
+/// Representation of a sphere object.
+/// </summary>
 class Sphere {
 public:
 
@@ -9,7 +12,14 @@ public:
     Sphere(Point3 center, float radius, int matId) : center(center), radius(radius), matId(matId) {
     };
 
-    // Get intersected point between the ray and the sphere
+    /// <summary>
+    /// Get intersected point between the ray and the sphere
+    /// </summary>
+    /// <param name="ray">Ray</param>
+    /// <param name="tmin">Minimal t</param>
+    /// <param name="tmax">Maximal t</param>
+    /// <param name="record">Hit record</param>
+    /// <returns>True if the ray hit an object</returns>
     __device__ bool Hit(const Ray& ray, float tmin, float tmax, HitRecord& record) const;
 
     AABB Box() {

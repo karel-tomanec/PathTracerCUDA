@@ -2,7 +2,10 @@
 #include "utility.h"
 #include "vector3.h"
 
-// An infinitely far away area light source that surrounds the entire scene
+
+/// <summary>
+/// An infinitely far away area light source that surrounds the entire scene.
+/// </summary>
 class EnvironmentMap {
 public:
 

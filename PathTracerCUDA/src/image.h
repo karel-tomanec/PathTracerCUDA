@@ -10,7 +10,9 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
-// Representation of RGB image
+/// <summary>
+/// Representation of RGB image.
+/// </summary>
 class Image {
 public:
     Color3* data;
@@ -50,12 +52,22 @@ public:
         delete[] data;
     }
 
-    // Lookup with integer coordinates
+    /// <summary>
+    /// Image lookup with integer coordinates.
+    /// </summary>
+    /// <param name="x">Horizontal integer coordinate</param>
+    /// <param name="y">Vertical integer coordinate</param>
+    /// <returns>Pixel color</returns>
     Color3 Lookup(int x, int y) {
         return data[this->width * y + x];
     }
 
-    // Lookup with UV coordinates
+    /// <summary>
+    /// Image lookup with UV coordinates.
+    /// </summary>
+    /// <param name="u">Horizontal UV coordinate</param>
+    /// <param name="v">Vertical UV coordinate</param>
+    /// <returns>Pixel color</returns>
     Color3 LookupUV(float u, float v) {
         return data[this->width * int((this->height - 1) * v) + int((this->width - 1) * u)];
     }

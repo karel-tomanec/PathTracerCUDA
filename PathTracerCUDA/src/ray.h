@@ -2,6 +2,9 @@
 #include "utility.h"
 #include "vector3.h"
 
+/// <summary>
+/// Representation of a light ray.
+/// </summary>
 class Ray {
 public:
 

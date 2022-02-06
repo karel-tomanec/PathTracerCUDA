@@ -8,7 +8,16 @@
 #include "bvh.h"
 #include "camera.h"
 
-// Traces rays recursively to converge to the correct aproximation of rendering equation
+/// <summary>
+/// Traces rays recursively to converge to the correct aproximation of rendering equation.
+/// </summary>
+/// <param name="r">Ray</param>
+/// <param name="list">List of hittable objects</param>
+/// <param name="nodes">List of BVH nodes</param>
+/// <param name="materials">List of materials</param>
+/// <param name="envMap">Environment map</param>
+/// <param name="localRandState">cuRAND state</param>
+/// <returns>Incoming radiance</returns>
 __device__ Color3 Trace(const Ray& r, Sphere* list, BVHNode* nodes, Material** materials, EnvironmentMap** envMap, curandState* localRandState) {
 
 	Ray currRay = r;
@@ -52,6 +61,21 @@ __device__ Color3 Trace(const Ray& r, Sphere* list, BVHNode* nodes, Material** m
 	return L;
 }
 
+
+/// <summary>
+/// A CUDA kernel that generates a ray for each pixel and triggers the trace function.
+/// The resulting radiation is stored in the frame buffer.
+/// </summary>
+/// <param name="fb">Frame buffer</param>
+/// <param name="maxX">Image width</param>
+/// <param name="maxY">Image height</param>
+/// <param name="nSamples">Number of samples</param>
+/// <param name="camera">Camera</param>
+/// <param name="list">List of hittable objects</param>
+/// <param name="nodes">List of BVH nodes</param>
+/// <param name="materials">List of materials</param>
+/// <param name="envMap">Environment map</param>
+/// <param name="randState">cuRAND state</param>
 __global__ void Render(Vector3* fb, int maxX, int maxY, int nSamples, Camera** camera, Sphere* list, BVHNode* nodes, Material** materials, EnvironmentMap** envMap, curandState* randState) {
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;

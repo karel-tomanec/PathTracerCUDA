@@ -4,7 +4,9 @@
 #include "ray.h"
 #include "hittable.h"
 
-// Representation of axis aligned bounding box that is surrounding primitives
+/// <summary>
+/// Representation of axis aligned bounding box that is surrounding primitives
+/// </summary>
 class AABB {
 public:
 
@@ -15,7 +17,13 @@ public:
 		maximum = b;
 	}
 
-	// Get intersected point between the ray and the AABB
+	/// <summary>
+	/// Get intersected point between the ray and the AABB.
+	/// </summary>
+	/// <param name="ray">ray</param>
+	/// <param name="tmin">minimal t</param>
+	/// <param name="tmax">maximal t</param>
+	/// <returns></returns>
 	__device__ bool Hit(const Ray& ray, float tmin, float tmax) const {
 		for (int i = 0; i < 3; ++i)
 		{
@@ -40,7 +48,12 @@ public:
 	Point3 maximum;
 };
 
-// Surrounds two input boxes with a larger one
+/// <summary>
+/// Surround two input boxes with a larger one.
+/// </summary>
+/// <param name="box0">box 0</param>
+/// <param name="box1">box 1</param>
+/// <returns>larger box</returns>
 AABB MergeBoxes(AABB& box0, AABB& box1) {
 	Point3 small(std::min(box0.minimum.x, box1.minimum.x),
 		std::min(box0.minimum.y, box1.minimum.y),

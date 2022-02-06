@@ -5,10 +5,14 @@
 #include "sphere.h"
 
 
-// A bounding volume hierarchy (BVH) is a tree structure on a set of geometric objects.
-// All objects are wrapped in bounding volumes that form the leaf nodes of the tree.
-// Every leaf node contains 1 or 2 objects.
-// These nodes are then grouped as small sets and enclosed withing larger volumes.
+
+
+/// <summary>
+/// A bounding volume hierarchy (BVH) is a tree structure on a set of geometric objects.
+/// All objects are wrapped in bounding volumes that form the leaf nodes of the tree.
+/// Every leaf node contains 1 or 2 objects.
+/// These nodes are then grouped as small sets and enclosed withing larger volumes.
+/// </summary>
 class BVHNode {
 
 public:
@@ -59,7 +63,16 @@ public:
 		 
 	}
 
-	// Get intersected point between the ray and the BVH node (non-recursive implementation)
+	/// <summary>
+	/// Get intersected point between the ray and the BVH node (non-recursive implementation).
+	/// </summary>
+	/// <param name="r">ray</param>
+	/// <param name="t_min">minimal t</param>
+	/// <param name="t_max">maximal t</param>
+	/// <param name="rec">hit record</param>
+	/// <param name="hittables">list of hittable objects</param>
+	/// <param name="nodes">list of BVH nodes</param>
+	/// <returns>true if ray hit an intersectable</returns>
 	__device__ bool Hit(const Ray& r, float t_min, float t_max, HitRecord& rec, Sphere* hittables, BVHNode* nodes) const;
 
 
