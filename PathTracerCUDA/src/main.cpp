@@ -3,7 +3,8 @@
 #include <iostream>
 #include <chrono>
 
-#include "../../Dependencies/GLFW/include/GLFW/glfw3.h"
+
+//#include <cuda_gl_interop.h>
 
 #include "utility.h"
 #include "image.h"
@@ -21,7 +22,7 @@
 const auto aspectRatio = 16.0f / 9.0f;
 const int imageWidth = 1920;
 const int imageHeight = static_cast<int>(imageWidth / aspectRatio);
-const int samplesPerPixel = 10000;
+const int samplesPerPixel = 10;
 
 // Threads per block
 const int blockWidth = 8;
@@ -172,13 +173,17 @@ void CreateWorld(Sphere* d_list, BVHNode* d_nodes, int nPrimitives, int nMateria
 	CheckCudaErrors(cudaMemcpy(d_nodes, nodes.data(), nodes.size() * sizeof(BVHNode), cudaMemcpyHostToDevice));
 }
 
-// Initializes environment map
+/// <summary>
+/// Initialize environment map
+/// </summary>
 __global__ void initEnvMap(EnvironmentMap** d_envmap, Color3* envMapData, int width, int height) {
 	*d_envmap = new EnvironmentMap(envMapData, width, height);
 }
 
 
-// Free materials and camera on device
+/// <summary>
+/// Free materials and camera on device.
+/// </summary>
 __global__ void freeMaterialsAndCamera(Material** d_materials, Camera** d_camera, int nMaterials) {
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
 		for (int i = 0; i < nMaterials; i++) {
@@ -188,7 +193,9 @@ __global__ void freeMaterialsAndCamera(Material** d_materials, Camera** d_camera
 	}
 }
 
-// Create output framebuffer for GLFW window from color buffer
+/// <summary>
+/// Create output framebuffer for GLFW window from color buffer
+/// </summary>
 __global__ void createOutputFrameBuffer(Vector3* colorBuffer, unsigned char* frameBuffer, int maxX, int maxY, int samplesPerPixel) {
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -277,6 +284,16 @@ int main()
 	// Make the window's context current
 	glfwMakeContextCurrent(window);
 
+	// GLEW init
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		/* Problem: glewInit failed, something is seriously wrong. */
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		glfwTerminate();
+		return -1;
+	}
+
 	// Tell GLFW to capture our mouse
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -333,7 +350,6 @@ int main()
 	Material** d_materials;
 	CheckCudaErrors(cudaMalloc((void**)&d_materials, nMaterials * sizeof(Material*)));
 
-
 	// Create buffer for primitives on device
 	Sphere* d_list;
 	CheckCudaErrors(cudaMalloc((void**)&d_list, nPrimitives * sizeof(Sphere)));
@@ -358,9 +374,19 @@ int main()
 	CheckCudaErrors(cudaDeviceSynchronize());
 
 	// Initialize image buffer for window
-	unsigned char* pix = new unsigned char[3 * imageWidth * imageHeight];
-	unsigned char* d_pix;
-	CheckCudaErrors(cudaMalloc((void**)&d_pix, 3 * imageWidth * imageHeight * sizeof(unsigned char)));
+	//unsigned char* pix = new unsigned char[3 * imageWidth * imageHeight];
+	//unsigned char* d_pix;
+	//CheckCudaErrors(cudaMalloc((void**)&d_pix, 3 * imageWidth * imageHeight * sizeof(unsigned char)));
+
+	GLuint bufferObj;
+	glGenBuffers(1, &bufferObj);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferObj);
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, imageWidth * imageHeight * 3 * sizeof(unsigned char), NULL, GL_DYNAMIC_DRAW);
+
+	cudaGraphicsResource* resource;
+	unsigned char* devPtr; // ukazatel na data PBO v CUDA, uchar4 má položky nazvané x, y, z a w
+	size_t size;
+
 
 
 #ifdef INTERACTIVE
@@ -390,21 +416,24 @@ int main()
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 		std::cout << "#" << sample << " - " << duration.count() << " [ms]" << std::endl;
 
+
+		cudaGraphicsGLRegisterBuffer(&resource, bufferObj, cudaGraphicsMapFlagsNone);
+		cudaGraphicsMapResources(1, &resource, NULL);
+		cudaGraphicsResourceGetMappedPointer((void**)&devPtr, &size, resource);
+
 		// Output FB as Image
-		createOutputFrameBuffer << <blocks, threads >> > (frameBuffer, d_pix, imageWidth, imageHeight, sample);
+		createOutputFrameBuffer << <blocks, threads >> > (frameBuffer, devPtr, imageWidth, imageHeight, sample);
 		CheckCudaErrors(cudaGetLastError());
 		CheckCudaErrors(cudaDeviceSynchronize());
-		CheckCudaErrors(cudaMemcpy(pix, d_pix, 3 * imageWidth * imageHeight * sizeof(unsigned char), cudaMemcpyDeviceToHost));
-
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawPixels(imageWidth, imageHeight, GL_RGB, GL_UNSIGNED_BYTE, pix);
+		glDrawPixels(imageWidth, imageHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
 		glfwSwapBuffers(window);
-
-		sample++;
 		glfwPollEvents();
 		processInput(window, d_camera);
+
+		sample++;
 
 		if (moved) {
 			sample = 1;
@@ -419,7 +448,7 @@ int main()
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawPixels(imageWidth, imageHeight, GL_RGB, GL_UNSIGNED_BYTE, pix);
+		glDrawPixels(imageWidth, imageHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -446,26 +475,30 @@ int main()
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 	std::cout << "Rendering took " << duration.count() << " [ms]." << std::endl;
 
+	cudaGraphicsGLRegisterBuffer(&resource, bufferObj, cudaGraphicsMapFlagsNone);
+	cudaGraphicsMapResources(1, &resource, NULL);
+	cudaGraphicsResourceGetMappedPointer((void**)&devPtr, &size, resource);
+
 	// Output FB as Image
-	createOutputFrameBuffer << <blocks, threads >> > (frameBuffer, d_pix, imageWidth, imageHeight, samplesPerPixel);
+	createOutputFrameBuffer << <blocks, threads >> > (frameBuffer, devPtr, imageWidth, imageHeight, samplesPerPixel);
 	CheckCudaErrors(cudaGetLastError());
 	CheckCudaErrors(cudaDeviceSynchronize());
-	CheckCudaErrors(cudaMemcpy(pix, d_pix, 3 * imageWidth * imageHeight * sizeof(unsigned char), cudaMemcpyDeviceToHost));
 
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawPixels(imageWidth, imageHeight, GL_RGB, GL_UNSIGNED_BYTE, pix);
+		glDrawPixels(imageWidth, imageHeight, GL_RGB, GL_UNSIGNED_BYTE, 0);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 #endif // STATIC
 
-
 	// Clean up
-	CheckCudaErrors(cudaFree(d_pix));
-	delete[] pix;
+	cudaGraphicsUnmapResources(1, &resource, NULL);
+	cudaGraphicsUnregisterResource(resource);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+	glDeleteBuffers(1, &bufferObj);
 	glfwTerminate();
 	freeMaterialsAndCamera << <1, 1 >> > (d_materials, d_camera, nMaterials);
 	CheckCudaErrors(cudaGetLastError());

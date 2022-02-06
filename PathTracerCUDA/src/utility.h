@@ -1,16 +1,20 @@
 #pragma once
 
 // CUDA includes
+
+//#include <glad/glad.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <curand_kernel.h>
 #include <math_constants.h>
+#include <cuda_gl_interop.h>
 
 #include <random>
 
 // Usings
-using std::shared_ptr;
-using std::make_shared;
 using std::sqrt;
 
 // Constants
