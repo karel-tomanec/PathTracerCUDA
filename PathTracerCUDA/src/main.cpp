@@ -3,9 +3,6 @@
 #include <iostream>
 #include <chrono>
 
-
-//#include <cuda_gl_interop.h>
-
 #include "utility.h"
 #include "image.h"
 #include "integrator.h"
@@ -20,9 +17,9 @@
 
 // Rendered image properties
 const auto aspectRatio = 16.0f / 9.0f;
-const int imageWidth = 1920;
+const int imageWidth = 1200;
 const int imageHeight = static_cast<int>(imageWidth / aspectRatio);
-const int samplesPerPixel = 10;
+const int samplesPerPixel = 10000;
 
 // Threads per block
 const int blockWidth = 8;
@@ -374,17 +371,13 @@ int main()
 	CheckCudaErrors(cudaDeviceSynchronize());
 
 	// Initialize image buffer for window
-	//unsigned char* pix = new unsigned char[3 * imageWidth * imageHeight];
-	//unsigned char* d_pix;
-	//CheckCudaErrors(cudaMalloc((void**)&d_pix, 3 * imageWidth * imageHeight * sizeof(unsigned char)));
-
 	GLuint bufferObj;
 	glGenBuffers(1, &bufferObj);
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferObj);
 	glBufferData(GL_PIXEL_UNPACK_BUFFER, imageWidth * imageHeight * 3 * sizeof(unsigned char), NULL, GL_DYNAMIC_DRAW);
 
 	cudaGraphicsResource* resource;
-	unsigned char* devPtr; // ukazatel na data PBO v CUDA, uchar4 má položky nazvané x, y, z a w
+	unsigned char* devPtr;
 	size_t size;
 
 
@@ -423,8 +416,7 @@ int main()
 
 		// Output FB as Image
 		createOutputFrameBuffer << <blocks, threads >> > (frameBuffer, devPtr, imageWidth, imageHeight, sample);
-		CheckCudaErrors(cudaGetLastError());
-		CheckCudaErrors(cudaDeviceSynchronize());
+
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -438,8 +430,6 @@ int main()
 		if (moved) {
 			sample = 1;
 			clearBuffer << <blocks, threads >> > (frameBuffer, imageWidth, imageHeight);
-			CheckCudaErrors(cudaGetLastError());
-			CheckCudaErrors(cudaDeviceSynchronize());
 		}
 
 		if (glfwWindowShouldClose(window)) break;
@@ -481,8 +471,6 @@ int main()
 
 	// Output FB as Image
 	createOutputFrameBuffer << <blocks, threads >> > (frameBuffer, devPtr, imageWidth, imageHeight, samplesPerPixel);
-	CheckCudaErrors(cudaGetLastError());
-	CheckCudaErrors(cudaDeviceSynchronize());
 
 
 	while (!glfwWindowShouldClose(window)) {
