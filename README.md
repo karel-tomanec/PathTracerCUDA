@@ -1,4 +1,4 @@
-# PathTracerCUDA
+# Path Tracing in CUDA
  
 ## Description
 
